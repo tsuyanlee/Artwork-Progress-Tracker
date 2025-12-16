@@ -30,7 +30,7 @@ import json
 
 # Optional Pillow import for saving PNGs
 try:
-    from PIL import Image, ImageDraw
+    from PIL import Image, ImageDraw, ImageGrab
     PIL_AVAILABLE = True
 except Exception:
     PIL_AVAILABLE = False
@@ -659,44 +659,35 @@ class ArtworkCalendarApp:
     # ---------------------------
     def _save_png(self):
         if not PIL_AVAILABLE:
-            messagebox.showerror("Pillow missing", "Saving as PNG requires Pillow.\nInstall with: pip install pillow")
+            messagebox.showerror(
+                "Pillow missing",
+                "Saving as PNG requires Pillow.\nInstall with: pip install pillow"
+            )
             return
-        today = datetime.date.today()
-        days = 365 * self.year_range
-        start_date = today - datetime.timedelta(days=days - 1)
 
-        cell = int(self.cell_size * self.zoom)
-        box = int(self.box * self.zoom)
-        padding_x = 60
-        padding_y = 20
+        # ensure everything is drawn
+        self.root.update_idletasks()
 
-        cols = math.ceil(days / 7)
-        width = padding_x + cols*cell + 200
-        height = padding_y + 7*cell + 80
+        # get canvas position on screen
+        x = self.canvas.winfo_rootx()
+        y = self.canvas.winfo_rooty()
+        w = self.canvas.winfo_width()
+        h = self.canvas.winfo_height()
 
-        img = Image.new('RGB', (width, height), color=(255,255,255))
-        draw = ImageDraw.Draw(img)
+        bbox = (x, y, x + w, y + h)
 
-        cur = start_date
-        while cur <= today:
-            delta = (cur - start_date).days
-            colnum = delta // 7
-            row = cur.weekday()
-            x = padding_x + colnum * cell
-            y = padding_y + row * cell
-            count = self.contributions.get(cur, 0)
-            color = contribution_color(self.palette, count)
-            color_rgb = tuple(int(color.lstrip('#')[i:i+2], 16) for i in (0,2,4))
-            draw.rectangle([x,y,x+box,y+box], fill=color_rgb, outline=(136,137,138))
-            cur += datetime.timedelta(days=1)
+        try:
+            img = ImageGrab.grab(bbox)
+            f = filedialog.asksaveasfilename(
+                defaultextension=".png",
+                filetypes=[("PNG Image", "*.png")]
+            )
+            if f:
+                img.save(f, "PNG")
+                messagebox.showinfo("Saved", f"Saved calendar to {f}")
+        except Exception as e:
+            messagebox.showerror("Error", f"Failed to save PNG: {e}")
 
-        f = filedialog.asksaveasfilename(defaultextension='.png', filetypes=[('PNG Image','*.png')])
-        if f:
-            try:
-                img.save(f)
-                messagebox.showinfo('Saved', f'Saved calendar to {f}')
-            except Exception as e:
-                messagebox.showerror('Error', f'Failed to save PNG: {e}')
     
     def _start_tracking(self):
         self.tracking_enabled = True
