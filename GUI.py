@@ -120,8 +120,7 @@ class ArtworkCalendarApp:
         self.load_folder(self.folder)
         self.root.protocol("WM_DELETE_WINDOW", self._on_close)
         self.root.after(REFRESH_INTERVAL_MS, self._auto_rescan)
-
-
+        
         
     def setup_ui(self):
         top = ttk.Frame(self.root)
@@ -224,6 +223,12 @@ class ArtworkCalendarApp:
         ttk.Label(controls_frame, text="Select Year:").pack(side=tk.LEFT)
         ttk.Combobox(controls_frame, textvariable=self.chart_year_var, values=year_choices, width=6, state="readonly").pack(side=tk.LEFT, padx=6)
         ttk.Button(controls_frame, text="Update Charts", command=self._update_charts).pack(side=tk.LEFT, padx=6)
+        self.export_charts_btn = ttk.Button(
+            controls_frame,
+            text="Export Charts",
+            command=self._export_charts
+        )
+
 
         # Charts label below the controls
         charts_label = ttk.Label(charts_container, text="Data Visualization", font=(None, 12, "bold"))
@@ -284,6 +289,10 @@ class ArtworkCalendarApp:
 
         # Save updated tracking AFTER scan
         self._save_tracking_file()
+        
+        # Clear charts and hide the export button
+        self._clear_charts()
+
         
     def _auto_rescan(self):
         if self._stop_poll:
@@ -447,16 +456,20 @@ class ArtworkCalendarApp:
             self.chart_canvas_pie.get_tk_widget().destroy()
         if self.chart_canvas_line:
             self.chart_canvas_line.get_tk_widget().destroy()
+            
+        if not self.export_charts_btn.winfo_ismapped():
+            self.export_charts_btn.pack(side=tk.LEFT, padx=6)
+
 
         # Pie chart
         total = sum(daily_counts.values())
         days = len(daily_counts)
         labels = ['Art Work Done', 'Inactive Days']
         sizes = [total, 365 - days]
-        fig1, ax1 = plt.subplots(figsize=(4,3))
+        self.fig_pie, ax1 = plt.subplots(figsize=(4,3))
         ax1.pie(sizes, labels=labels, autopct='%1.1f%%', textprops={'fontsize':8})
         ax1.set_title(f"Year {year} Overview", fontsize=10)
-        self.chart_canvas_pie = FigureCanvasTkAgg(fig1, master=self.charts_frame)
+        self.chart_canvas_pie = FigureCanvasTkAgg(self.fig_pie, master=self.charts_frame)
         self.chart_canvas_pie.draw()
         self.chart_canvas_pie.get_tk_widget().pack(side=tk.LEFT, padx=10,pady=(0, 20))
 
@@ -464,15 +477,15 @@ class ArtworkCalendarApp:
         if daily_counts:
             sorted_dates = sorted(daily_counts.keys())
             counts = [daily_counts[d] for d in sorted_dates]
-            fig2, ax2 = plt.subplots(figsize=(4,3))
+            self.fig_line, ax2 = plt.subplots(figsize=(4,3))
             ax2.plot(sorted_dates, counts)
             ax2.set_title("Daily Contributions", fontsize=10)
             ax2.set_xlabel("Date", fontsize=10)
             ax2.set_ylabel("Art Work Done", fontsize=8)
             ax2.tick_params(axis='x', labelsize=6)  # smaller X-axis labels
             ax2.tick_params(axis='y', labelsize=8)
-            fig2.autofmt_xdate()
-            self.chart_canvas_line = FigureCanvasTkAgg(fig2, master=self.charts_frame)
+            self.fig_line.autofmt_xdate()
+            self.chart_canvas_line = FigureCanvasTkAgg(self.fig_line, master=self.charts_frame)
             self.chart_canvas_line.draw()
             self.chart_canvas_line.get_tk_widget().pack(side=tk.LEFT, padx=10,pady=(0, 20))
         
@@ -493,17 +506,24 @@ class ArtworkCalendarApp:
             labels = list(file_type_counts.keys())
             counts = [file_type_counts[l] for l in labels]
 
-            fig3, ax3 = plt.subplots(figsize=(4,3))
-            ax3.bar(labels, counts, color='skyblue')
-            ax3.set_title(f"Files by Type in {year}", fontsize=10)
-            ax3.set_xlabel("File Type",fontsize=10)
-            ax3.set_ylabel("Count",fontsize=8)
-            ax3.set_xticklabels(labels, rotation=45, ha='right', fontsize=8)
-            fig3.tight_layout()
+            x = range(len(labels))
 
-            self.chart_canvas_filetypes = FigureCanvasTkAgg(fig3, master=self.charts_frame)
+            self.fig_bar, ax3 = plt.subplots(figsize=(4,3))
+            ax3.bar(x, counts)
+
+            ax3.set_title(f"Files by Type in {year}", fontsize=10)
+            ax3.set_xlabel("File Type", fontsize=10)
+            ax3.set_ylabel("Count", fontsize=8)
+
+            ax3.set_xticks(x)
+            ax3.set_xticklabels(labels, rotation=45, ha='right', fontsize=8)
+
+            self.fig_bar.tight_layout()
+
+            self.chart_canvas_filetypes = FigureCanvasTkAgg(self.fig_bar, master=self.charts_frame)
             self.chart_canvas_filetypes.draw()
-            self.chart_canvas_filetypes.get_tk_widget().pack(side=tk.LEFT, padx=10,pady=(0, 20))
+            self.chart_canvas_filetypes.get_tk_widget().pack(side=tk.LEFT, padx=10, pady=(0, 20))
+
 
 
     # ---------------------------
@@ -796,6 +816,53 @@ class ArtworkCalendarApp:
             self._draw_calendar(animate=True)
             if changed :
                 self._save_tracking_file()
+    def _export_charts(self):
+        base_path = filedialog.asksaveasfilename(
+            title="Export Charts",
+            defaultextension=".png",
+            filetypes=[("PNG Image", "*.png")]
+        )
+
+        if not base_path:
+            return
+
+        base, _ = os.path.splitext(base_path)
+
+        try:
+            if hasattr(self, "fig_pie") and self.fig_pie:
+                self.fig_pie.savefig(f"{base}_pie.png", dpi=150, bbox_inches="tight")
+
+            if hasattr(self, "fig_line") and self.fig_line:
+                self.fig_line.savefig(f"{base}_line.png", dpi=150, bbox_inches="tight")
+
+            if hasattr(self, "fig_bar") and self.fig_bar:
+                self.fig_bar.savefig(f"{base}_bar.png", dpi=150, bbox_inches="tight")
+
+            messagebox.showinfo(
+                "Exported",
+                "Charts exported successfully."
+            )
+
+        except Exception as e:
+            messagebox.showerror("Export Failed", str(e))
+            
+    def _clear_charts(self):
+        if self.chart_canvas_pie:
+            self.chart_canvas_pie.get_tk_widget().destroy()
+            self.chart_canvas_pie = None
+
+        if self.chart_canvas_line:
+            self.chart_canvas_line.get_tk_widget().destroy()
+            self.chart_canvas_line = None
+
+        if hasattr(self, "chart_canvas_filetypes") and self.chart_canvas_filetypes:
+            self.chart_canvas_filetypes.get_tk_widget().destroy()
+            self.chart_canvas_filetypes = None
+
+        if hasattr(self, "export_charts_btn") and self.export_charts_btn.winfo_ismapped():
+            self.export_charts_btn.pack_forget()
+
+
 
 
 
