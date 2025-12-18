@@ -1,47 +1,66 @@
+<!-- 
+At first I used ChatGPT to quickly write the Markdown file for me. 
+But this is one of those times where you want to make sure your effort matters.
+
+ -->
+
+
+
 # Artwork Progress Tracker
 
-A GitHub-style contribution calendar for tracking creative work inside a folder.  
-It visualizes daily file additions and modifications as a heatmap, helping you see your consistency over time.
+This is @tsuyanlee (DaveDrafts), I created this tool to track my work, mostly the artworks that I have made so far.  
+I love organising my work, so I have dedicated folders to store my work.  
+This is one of those tools that I made to smoothen my work process, and many more are yet to come.  
+  
+`You can use this tool to not just track artworks, but also on all types of files that you have stored.`
 
-Suitable for artists, designers, writers, or developers who want a visual productivity log without using Git.
+---
+## Inspiration
+GitHub style Progress Tracker that shows a calendar in which how many commits have been performed.  
+A similar approach to passively track file changes in a folder.  
+Without the use of GitHub.
 
 ---
 
-## Features
+## Versions
 
-- GitHub-style calendar heatmap
-- Tracks file creation and modification times
-- Darker squares indicate more work done on that day
-- Hover to see daily statistics
-- Click a day to see files modified with exact timestamps
-- Track any folder
-- Automatic rescanning (no file watchers required)
-- Charts:
-  - Pie chart (active vs inactive days)
-  - Line chart (daily contributions)
-  - Bar chart (files by extension)
-- Zoom control with percentage display
-- Export calendar as PNG
-- Persistent tracking using `tracking.json`
-- Safe tracking (no double counting, no refresh flicker)
+### Drafts
+
+| Version | Details|
+|-------|-----|
+| V0.1 | Just Showed a calendar with no text.
+| V0.2 | Added Calendar texts and a save png button to export the calendar.
+| V0.3 | Worked on adding other folders from different directories
+| V0.4 | Added Data visualization for the Work Done days compared to inactive(Pie Chart.)
+| V0.5 | Other Graphs (Line) Daily Contributions and (Bar) for different file types.
+| V0.6 | Added tracking system to track any modifications done on saved work file using trackin.json. 
+
+### Launched
+| Version | Details|
+|-------|-----|
+| V1.00 |  Uploaded the source code to GitHub.
+| [V1.01](https://github.com/tsuyanlee/Artwork-Progress-Tracker/tree/main) | **Bug Fixes**, Fixed where the modification count was +2 when launching the app if the changes were made the next day.
+| V1.10 | **Feature Fixes** Added text on the exported image of Calendar.
+| V1.20 | **Feature Added** Added Export Charts that exported the Graphs and Charts into Images.
+| [V1.21](https://github.com/tsuyanlee/Artwork-Progress-Tracker/tree/Save-Graph-feature) | **Bug Fixes** Fixed an invisble bug with the text of Libe Graph. 
+
 
 ---
 
-## How It Works
+## Instructions
 
-- The app scans a selected folder at intervals
-- Each file keeps:
-  - Last modification time
-  - Total modification count
-  - Full modification history
-- Each modification contributes +1 to the calendar day
-- Timestamp comparison prevents:
-  - Duplicate counts
-  - Restart inflation
-  - File system timestamp jitter
+Clone the github repo  
+```bash
+git clone https://github.com/tsuyanlee/Artwork-Progress-Tracker
+```
+```
 
-The behavior matches how GitHub contribution calendars work — snapshot based, not live event tracking.
-
+1. (Optional)Add the GUY.py code to your dedicated folder, this will be the default folder that opens the same Directory.
+1. Run the code.
+```bash 
+python GUY.py
+```
+3.
 ---
 
 ## Requirements
