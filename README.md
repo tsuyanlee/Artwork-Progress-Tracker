@@ -67,6 +67,7 @@ python GUY.py
 4. Click on Save Png to save the calendar as a png file. Give the appropriate name.
 5. Hover on the days of calendar to see the number work done and modifications made on that specific day.
 6. Click on the day to see the names of files that you worked on that day.
+7. Click on Export Chart to export the charts as .png files.
 ---
 
 ## Requirements
