@@ -11,6 +11,10 @@ But this is one of those times where you want to make sure your effort matters.
 This is @tsuyanlee (DaveDrafts), I created this tool to track my work, mostly the artworks that I have made so far.  
 I love organising my work, so I have dedicated folders to store my work.  
 This is one of those tools that I made to smoothen my work process, and many more are yet to come.  
+I did use ChatGPT at first to generate a template for the tool, I didnt have much time in the begining due to various projects.  
+The generated code had so many issues I had to fix it one by one later on when I had the time.  
+I do regret using it in the begining of this, but on solo projects (which it was in the begining) I had to chose convenience.  
+I apologise if I hurted any of your feelings. Just think of me as a developer tight on time and budget.
   
 `You can use this tool to not just track artworks, but also on all types of files that you have stored.`
 
@@ -53,14 +57,17 @@ Clone the github repo
 ```bash
 git clone https://github.com/tsuyanlee/Artwork-Progress-Tracker
 ```
-```
 
 1. (Optional)Add the GUY.py code to your dedicated folder, this will be the default folder that opens the same Directory.
 1. Run the code.
 ```bash 
 python GUY.py
 ```
-3.
+3. Click on Update Charts to show data visualization in the form of vrious charts.
+4. Click on Save Png to save the calendar as a png file. Give the appropriate name.
+5. Hover on the days of calendar to see the number work done and modifications made on that specific day.
+6. Click on the day to see the names of files that you worked on that day.
+7. Click on Export Chart to export the charts as .png files.
 ---
 
 ## Requirements
